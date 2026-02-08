@@ -1,0 +1,63 @@
+*picopack.txt*  Minimal package manager for Vim 8+
+
+Author: guychouk
+License: Same terms as Vim itself (see |license|)
+
+CONTENTS                                            *picopack* *picopack-contents*
+
+1. Introduction                         |picopack-introduction|
+2. Configuration                        |picopack-configuration|
+3. Commands                             |picopack-commands|
+
+==============================================================================
+1. INTRODUCTION                                     *picopack-introduction*
+
+Picopack is a minimal wrapper around Vim's native |packages| system. It adds
+three commands for installing, updating, and cleaning packages — nothing else.
+
+Vim 8 introduced built-in package loading from the `pack/` directory, but
+shipped no mechanism to actually install or manage packages. Picopack fills
+that gap with the smallest possible footprint.
+
+==============================================================================
+2. CONFIGURATION                                    *picopack-configuration*
+
+                                                    *g:picopack*
+Define your packages in a list. Entries can be GitHub shorthand (`user/repo`)
+or full URLs:
+>
+        let g:picopack = [
+          \ 'tpope/vim-fugitive',
+          \ 'junegunn/fzf.vim',
+          \ 'https://gitlab.com/user/plugin.git',
+        \ ]
+<
+This variable must be set before the commands are used, typically in your
+|vimrc|.
+
+                                                    *g:picopack_path*
+The directory where packages are cloned. Defaults to the first entry in
+'packpath' under `pack/bundle/start`:
+>
+        let g:picopack_path = '~/.vim/pack/bundle/start'
+<
+Packages installed here are loaded automatically by Vim on startup.
+
+==============================================================================
+3. COMMANDS                                         *picopack-commands*
+
+                                                    *:PicopackInstall*
+:PicopackInstall        Clone any packages from |g:picopack| that are not
+                        already present. Uses `git clone --depth=1` for
+                        shallow clones.
+
+                                                    *:PicopackUpdate*
+:PicopackUpdate         Run `git pull --rebase` in each installed package
+                        directory.
+
+                                                    *:PicopackClean*
+:PicopackClean          Remove any directories under |g:picopack_path| that
+                        do not correspond to an entry in |g:picopack|.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
