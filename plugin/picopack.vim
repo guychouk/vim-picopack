@@ -93,6 +93,18 @@ function! s:clean()
   call s:echo('Done!', 'MoreMsg')
 endfunction
 
+function! s:upgrade()
+  let root = expand('<sfile>:p:h:h')
+  call s:echo('Upgrading picopack...', 'MoreMsg')
+  let out = system('git -C ' . shellescape(root) . ' pull --rebase')
+  if v:shell_error
+    call s:echo('Failed to upgrade picopack', 'ErrorMsg')
+  else
+    echo out
+  endif
+endfunction
+
 command! PicopackInstall call <SID>install()
 command! PicopackUpdate  call <SID>update()
 command! PicopackClean   call <SID>clean()
+command! PicopackUpgrade call <SID>upgrade()

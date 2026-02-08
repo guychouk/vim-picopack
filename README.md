@@ -11,9 +11,10 @@ let g:picopack = [
 :PicopackInstall   - clone missing packages
 :PicopackUpdate    - pull latest for all packages
 :PicopackClean     - remove unlisted packages
+:PicopackUpgrade   - update picopack itself
 ```
 
-Vim 8 ships with native package loading (`:h packages`) from the `pack/` directory but no way to install or update packages. picopack adds three commands and nothing else.
+Vim 8 ships with native package loading (`:h packages`) from the `pack/` directory but no way to install or update packages. picopack adds four commands and nothing else.
 
 ## Install
 
@@ -48,6 +49,7 @@ let g:picopack_path = '~/.vim/pack/my-plugins/start'
 - `:PicopackInstall` — shallow-clone any packages not yet on disk
 - `:PicopackUpdate` — `git pull --rebase` in every installed package
 - `:PicopackClean` — delete directories that aren't in your `g:picopack` list
+- `:PicopackUpgrade` — update picopack itself
 
 ## See also
 
