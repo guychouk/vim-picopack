@@ -35,29 +35,43 @@ or full URLs:
 This variable must be set before the commands are used, typically in your
 |vimrc|.
 
+                                                    *g:picopack_opt*
+Optional packages are defined the same way but loaded on demand with
+|:packadd| rather than automatically at startup:
+>
+        let g:picopack_opt = [
+          \ 'yegappan/lsp',
+        \ ]
+<
+These are cloned to `pack/bundle/opt` instead of `pack/bundle/start`.
+See |packages| for how optional package loading works.
+
                                                     *g:picopack_path*
-The directory where packages are cloned. Defaults to the first entry in
-'packpath' under `pack/bundle/start`:
+The directory where start packages are cloned. Defaults to the first entry
+in 'packpath' under `pack/bundle/start`:
 >
         let g:picopack_path = '~/.vim/pack/bundle/start'
 <
-Packages installed here are loaded automatically by Vim on startup.
+The opt path is derived automatically by replacing `start` with `opt`.
+Packages in start are loaded automatically by Vim on startup; packages in
+opt are loaded only when requested via |:packadd|.
 
 ==============================================================================
 3. COMMANDS                                         *picopack-commands*
 
                                                     *:PicopackInstall*
-:PicopackInstall        Clone any packages from |g:picopack| that are not
-                        already present. Uses `git clone --depth=1` for
-                        shallow clones.
+:PicopackInstall        Clone any packages from |g:picopack| and
+                        |g:picopack_opt| that are not already present.
+                        Uses `git clone --depth=1` for shallow clones.
 
                                                     *:PicopackUpdate*
 :PicopackUpdate         Run `git pull --rebase` in each installed package
-                        directory.
+                        directory (both start and opt).
 
                                                     *:PicopackClean*
-:PicopackClean          Remove any directories under |g:picopack_path| that
-                        do not correspond to an entry in |g:picopack|.
+:PicopackClean          Remove any directories under the start and opt
+                        paths that do not correspond to an entry in
+                        |g:picopack| or |g:picopack_opt| respectively.
 
                                                     *:PicopackUpgrade*
 :PicopackUpgrade        Update picopack itself by running `git pull --rebase`

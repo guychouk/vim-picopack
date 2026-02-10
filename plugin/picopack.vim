@@ -7,7 +7,8 @@ if exists('g:loaded_picopack')
 endif
 let g:loaded_picopack = 1
 
-let s:path = get(g:, 'picopack_path', split(&packpath, ',')[0] . '/pack/bundle/start')
+let s:start_path = get(g:, 'picopack_path', split(&packpath, ',')[0] . '/pack/bundle/start')
+let s:opt_path = substitute(s:start_path, '/start$', '/opt', '')
 
 function! s:name(repo)
   return substitute(a:repo, '^.*/', '', '')
@@ -19,21 +20,13 @@ function! s:echo(msg, hl)
   echohl None
 endfunction
 
-function! s:install()
-  let packages = get(g:, 'picopack', [])
-  if empty(packages)
-    call s:echo('Nothing to install. Define packages in g:picopack', 'WarningMsg')
-    return
+function! s:install_to(packages, path)
+  if !isdirectory(a:path)
+    call mkdir(a:path, 'p')
   endif
-
-  if !isdirectory(s:path)
-    call mkdir(s:path, 'p')
-  endif
-
-  for repo in packages
+  for repo in a:packages
     let name = s:name(repo)
-    let dest = s:path . '/' . name
-
+    let dest = a:path . '/' . name
     if !isdirectory(dest)
       call s:echo('Installing ' . name . '...', 'MoreMsg')
       let url = repo =~# '^https\?://' ? repo : 'https://github.com/' . repo
@@ -48,21 +41,12 @@ function! s:install()
       call s:echo('Already installed: ' . name, 'Comment')
     endif
   endfor
-
-  call s:echo('Done!', 'MoreMsg')
 endfunction
 
-function! s:update()
-  let packages = get(g:, 'picopack', [])
-  if empty(packages)
-    call s:echo('Nothing to update. Define packages in g:picopack', 'WarningMsg')
-    return
-  endif
-
-  for repo in packages
+function! s:update_in(packages, path)
+  for repo in a:packages
     let name = s:name(repo)
-    let dest = s:path . '/' . name
-
+    let dest = a:path . '/' . name
     if isdirectory(dest)
       call s:echo('Updating ' . name . '...', 'MoreMsg')
       let out = system('git -C ' . shellescape(dest) . ' pull --rebase')
@@ -73,15 +57,11 @@ function! s:update()
       endif
     endif
   endfor
-
-  call s:echo('Done!', 'MoreMsg')
 endfunction
 
-function! s:clean()
-  let packages = get(g:, 'picopack', [])
-  let installed = glob(s:path . '/*', 0, 1)
-  let keep = map(copy(packages), 's:path . "/" . s:name(v:val)')
-
+function! s:clean_in(packages, path)
+  let installed = glob(a:path . '/*', 0, 1)
+  let keep = map(copy(a:packages), 'a:path . "/" . s:name(v:val)')
   for dir in installed
     if index(keep, dir) == -1
       let name = fnamemodify(dir, ':t')
@@ -89,7 +69,35 @@ function! s:clean()
       call delete(dir, 'rf')
     endif
   endfor
+endfunction
 
+function! s:install()
+  let start = get(g:, 'picopack', [])
+  let opt = get(g:, 'picopack_opt', [])
+  if empty(start) && empty(opt)
+    call s:echo('Nothing to install. Define packages in g:picopack or g:picopack_opt', 'WarningMsg')
+    return
+  endif
+  call s:install_to(start, s:start_path)
+  call s:install_to(opt, s:opt_path)
+  call s:echo('Done!', 'MoreMsg')
+endfunction
+
+function! s:update()
+  let start = get(g:, 'picopack', [])
+  let opt = get(g:, 'picopack_opt', [])
+  if empty(start) && empty(opt)
+    call s:echo('Nothing to update. Define packages in g:picopack or g:picopack_opt', 'WarningMsg')
+    return
+  endif
+  call s:update_in(start, s:start_path)
+  call s:update_in(opt, s:opt_path)
+  call s:echo('Done!', 'MoreMsg')
+endfunction
+
+function! s:clean()
+  call s:clean_in(get(g:, 'picopack', []), s:start_path)
+  call s:clean_in(get(g:, 'picopack_opt', []), s:opt_path)
   call s:echo('Done!', 'MoreMsg')
 endfunction
 
